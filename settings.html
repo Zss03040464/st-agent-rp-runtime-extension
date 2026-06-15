@@ -1,0 +1,104 @@
+<div id="agent_rp_runtime_settings">
+    <div class="inline-drawer">
+        <div class="inline-drawer-toggle inline-drawer-header">
+            <b>Agent RP Runtime</b>
+            <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
+        </div>
+        <div class="inline-drawer-content">
+            <div class="arr-phase-badge">当前阶段：I4 Runtime dry-run — 不接管生成流程</div>
+
+            <label class="checkbox_label">
+                <input type="checkbox" id="arr_enabled" name="arr_enabled">
+                <span>启用 Agent RP Runtime</span>
+            </label>
+            <small>启用后，消息发送将经过 Runtime pipeline 处理。</small>
+
+            <hr>
+
+            <label class="checkbox_label">
+                <input type="checkbox" id="arr_dry_run" name="arr_dry_run">
+                <span>Dry-run 模式</span>
+            </label>
+            <small>启用后只读取和映射数据，不实际修改聊天消息。</small>
+
+            <hr>
+
+            <div class="flex-container">
+                <label>Scenario ID:</label>
+                <input type="text" id="arr_scenario_id" class="text_pole" placeholder="输入 scenario ID...">
+            </div>
+            <small>选择场景规则包。留空使用默认规则。</small>
+
+            <hr>
+
+            <label class="checkbox_label">
+                <input type="checkbox" id="arr_debug" name="arr_debug">
+                <span>Debug 日志</span>
+            </label>
+            <small>启用后输出详细调试信息到控制台。</small>
+
+            <hr>
+
+            <div class="arr-status">
+                <h4>状态说明</h4>
+                <div id="arr_status_text">
+                    <ul>
+                        <li>当前阶段：I4 — Runtime dry-run</li>
+                        <li>不接管生成流程</li>
+                        <li>不调用模型 API</li>
+                        <li>不写回聊天消息</li>
+                        <li>不持久化状态</li>
+                        <li>dry-run 在 Node 测试层执行，浏览器 UI 显示占位信息</li>
+                        <li>下一阶段 I5：写回消息前的安全设计</li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="arr-readonly-section">
+                <h4>只读数据调试</h4>
+                <div class="arr-readonly-actions">
+                    <button id="arr_refresh_data" class="menu_button">刷新只读数据</button>
+                    <span id="arr_read_timestamp" class="arr-timestamp"></span>
+                </div>
+
+                <div id="arr_read_status" class="arr-read-panel">
+                    <div class="arr-read-placeholder">点击「刷新只读数据」查看当前 SillyTavern 上下文摘要。</div>
+                </div>
+
+                <div id="arr_read_errors" class="arr-read-errors" style="display:none;"></div>
+
+                <details id="arr_bridge_preview" class="arr-read-details" style="display:none;">
+                    <summary>Bridge Input 预览</summary>
+                    <pre id="arr_bridge_preview_content" class="arr-read-pre"></pre>
+                </details>
+            </div>
+
+            <hr>
+
+            <div class="arr-dryrun-section">
+                <h4>Runtime Dry-Run 调试</h4>
+                <div class="arr-dryrun-actions">
+                    <button id="arr_run_dryrun" class="menu_button">运行 Runtime Dry-Run</button>
+                    <span id="arr_dryrun_timestamp" class="arr-timestamp"></span>
+                </div>
+                <div class="arr-dryrun-notice">
+                   注意：当前阶段 runtime bundle 尚未加载到浏览器扩展。Dry-run 在 Node 测试层执行。<br>
+                   点击按钮显示当前 bridge input 预览和 bundle 状态信息。
+                </div>
+
+                <div id="arr_dryrun_status" class="arr-dryrun-panel">
+                    <div class="arr-read-placeholder">点击「运行 Runtime Dry-Run」查看 dry-run 状态。</div>
+                </div>
+
+                <div id="arr_dryrun_errors" class="arr-dryrun-errors" style="display:none;"></div>
+
+                <details id="arr_dryrun_output" class="arr-read-details" style="display:none;">
+                    <summary>Dry-Run 输出预览</summary>
+                    <pre id="arr_dryrun_output_content" class="arr-read-pre"></pre>
+                </details>
+            </div>
+        </div>
+    </div>
+</div>

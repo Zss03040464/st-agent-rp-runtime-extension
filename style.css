@@ -1,0 +1,166 @@
+/* Agent RP Runtime — Phase I4 extension shell styles */
+
+#agent_rp_runtime_settings .arr-phase-badge {
+    background: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.3));
+    border: 1px solid var(--SmartThemeBorderColor, #444);
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-bottom: 10px;
+    font-size: 0.85em;
+    color: var(--SmartThemeBodyColor, #ccc);
+    text-align: center;
+}
+
+#agent_rp_runtime_settings .arr-status {
+    margin-top: 10px;
+    padding: 8px;
+    background: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.2));
+    border-radius: 4px;
+}
+
+#agent_rp_runtime_settings .arr-status ul {
+    margin: 4px 0;
+    padding-left: 16px;
+    font-size: 0.85em;
+    color: var(--SmartThemeBodyColor, #ccc);
+}
+
+#agent_rp_runtime_settings .arr-status h4 {
+    margin: 0 0 4px 0;
+    font-size: 0.9em;
+}
+
+/* Read-only debug section */
+#agent_rp_runtime_settings .arr-readonly-section {
+    margin-top: 12px;
+    padding: 8px;
+    background: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.15));
+    border-radius: 4px;
+}
+
+#agent_rp_runtime_settings .arr-readonly-section h4 {
+    margin: 0 0 6px 0;
+    font-size: 0.9em;
+}
+
+#agent_rp_runtime_settings .arr-readonly-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+#agent_rp_runtime_settings .arr-timestamp {
+    font-size: 0.8em;
+    color: var(--SmartThemeBodyColor, #888);
+}
+
+#agent_rp_runtime_settings .arr-read-panel {
+    background: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.25));
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 6px;
+    font-size: 0.85em;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#agent_rp_runtime_settings .arr-read-placeholder {
+    color: var(--SmartThemeBodyColor, #888);
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+#agent_rp_runtime_settings .arr-read-errors {
+    background: rgba(255, 60, 60, 0.15);
+    border: 1px solid rgba(255, 60, 60, 0.3);
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-top: 6px;
+    font-size: 0.85em;
+    color: var(--SmartThemeBodyColor, #f66);
+    white-space: pre-wrap;
+}
+
+#agent_rp_runtime_settings .arr-read-details {
+    margin-top: 8px;
+}
+
+#agent_rp_runtime_settings .arr-read-details summary {
+    font-size: 0.85em;
+    cursor: pointer;
+    color: var(--SmartThemeBodyColor, #aaa);
+}
+
+#agent_rp_runtime_settings .arr-read-details summary:hover {
+    color: var(--SmartThemeBodyColor, #fff);
+}
+
+#agent_rp_runtime_settings .arr-read-pre {
+    background: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.3));
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 4px;
+    font-size: 0.78em;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Dry-run debug section */
+#agent_rp_runtime_settings .arr-dryrun-section {
+    margin-top: 12px;
+    padding: 8px;
+    background: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.15));
+    border-radius: 4px;
+}
+
+#agent_rp_runtime_settings .arr-dryrun-section h4 {
+    margin: 0 0 6px 0;
+    font-size: 0.9em;
+}
+
+#agent_rp_runtime_settings .arr-dryrun-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+#agent_rp_runtime_settings .arr-dryrun-notice {
+    font-size: 0.78em;
+    color: var(--SmartThemeBodyColor, #aa8);
+    background: rgba(255, 200, 50, 0.08);
+    border: 1px solid rgba(255, 200, 50, 0.2);
+    border-radius: 3px;
+    padding: 4px 8px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+#agent_rp_runtime_settings .arr-dryrun-panel {
+    background: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.25));
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 6px;
+    font-size: 0.85em;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#agent_rp_runtime_settings .arr-dryrun-errors {
+    background: rgba(255, 60, 60, 0.15);
+    border: 1px solid rgba(255, 60, 60, 0.3);
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-top: 6px;
+    font-size: 0.85em;
+    color: var(--SmartThemeBodyColor, #f66);
+    white-space: pre-wrap;
+}
