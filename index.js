@@ -2,6 +2,7 @@ const EXTENSION_NAME = 'Agent RP Runtime';
 let lastReadonlyResult = null;
 let lastDryRunText = '';
 let lastWritePreview = null;
+let lastInputSnapshot = null;
 let panelCollapsed = false;
 const WRITE_CONFIRM_ENABLED = false;
 
@@ -33,7 +34,7 @@ function scanPage() {
         result.messageCount = chat?.children?.length || messages.length;
         result.lastMessagePreview = safeText(messages.at(-1)?.innerText || messages.at(-1)?.textContent || '', 120);
 
-        const input = document.querySelector('textarea#send_textarea, textarea[name="send_textarea"], #send_textarea, textarea');
+        const input = findInputBox();
         result.userInputPreview = safeText(input?.value || '', 120);
     } catch (e) {
         result.warnings.push(e.message);
@@ -69,8 +70,8 @@ function buildWritePreview() {
     return {
         createdAt: now,
         candidate: [
-            '[Agent RP Runtime preview only]',
-            'This text is not inserted into chat.',
+            '[Agent RP Runtime input-box draft]',
+            'This text can be copied into the input box only.',
             '',
             source,
         ].join('\n'),
@@ -79,6 +80,7 @@ function buildWritePreview() {
             'secondConfirmRequired: true',
             'autoGenerateBlocked: true',
             'realInsertBlocked: true',
+            'inputBoxDraftAllowed: true',
             'didWriteBack: false',
         ],
     };
@@ -96,8 +98,18 @@ function formatWritePreview(preview) {
         ...preview.checks.map(x => `  ${x}`),
         '',
         'Confirm button status: disabled',
-        'Reason: I5 only defines the safety gate. Real insertion is not enabled.',
+        'Input-box draft button status: enabled after preview',
+        'Reason: I6-B1 can write only into the input box and cannot send.',
     ].join('\n');
+}
+
+function findInputBox() {
+    return document.querySelector('textarea#send_textarea, textarea[name="send_textarea"], #send_textarea, textarea');
+}
+
+function notifyInputChanged(input) {
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 function escapeHtml(value) {
@@ -159,12 +171,74 @@ function handleWritePreview() {
     }
 }
 
+function handleWriteInputDraft() {
+    console.log(`[${EXTENSION_NAME}] input-box draft clicked`);
+    try {
+        if (!lastWritePreview?.candidate) {
+            setPanelError('Input-box draft blocked: run write preview first.\ndidWriteToInputBox: false\ndidWriteBack: false');
+            return;
+        }
+
+        const input = findInputBox();
+        if (!input) {
+            setPanelError('Input-box draft blocked: input box not found.\ndidWriteToInputBox: false\ndidWriteBack: false');
+            return;
+        }
+
+        lastInputSnapshot = {
+            value: input.value || '',
+            timestamp: Date.now(),
+        };
+        input.value = lastWritePreview.candidate;
+        notifyInputChanged(input);
+
+        setPanelOutput([
+            'Input-box draft applied',
+            'didWriteToInputBox: true',
+            'didWriteBack: false',
+            'didSend: false',
+            'snapshotSaved: true',
+            `draftLength: ${lastWritePreview.candidate.length}`,
+        ].join('\n'));
+    } catch (e) {
+        setPanelError(`Input-box draft failed: ${e.message}`);
+    }
+}
+
+function handleUndoInputDraft() {
+    console.log(`[${EXTENSION_NAME}] undo input-box draft clicked`);
+    try {
+        const input = findInputBox();
+        if (!input) {
+            setPanelError('Input-box revert blocked: input box not found.\ndidWriteToInputBox: false\ndidWriteBack: false');
+            return;
+        }
+        if (!lastInputSnapshot) {
+            setPanelError('No input-box snapshot available.\ndidWriteToInputBox: false\ndidWriteBack: false');
+            return;
+        }
+
+        input.value = lastInputSnapshot.value;
+        notifyInputChanged(input);
+        lastInputSnapshot = null;
+
+        setPanelOutput([
+            'Input-box draft reverted',
+            'didWriteToInputBox: false',
+            'didWriteBack: false',
+            'reverted: true',
+        ].join('\n'));
+    } catch (e) {
+        setPanelError(`Input-box revert failed: ${e.message}`);
+    }
+}
+
 function handleConfirmWrite() {
     console.log(`[${EXTENSION_NAME}] confirm write clicked but blocked`);
     setPanelOutput([
         'Write-back blocked',
         'didWriteBack: false',
-        'Reason: confirm write is intentionally disabled in I5 safety gate.',
+        'Reason: confirm write is intentionally disabled.',
         'No chat content was changed.',
     ].join('\n'));
 }
@@ -184,6 +258,8 @@ function mountPanelEvents() {
     document.getElementById('arr_btn_refresh')?.addEventListener('click', handleRefreshData);
     document.getElementById('arr_btn_dryrun')?.addEventListener('click', handleDryRun);
     document.getElementById('arr_btn_preview_write')?.addEventListener('click', handleWritePreview);
+    document.getElementById('arr_btn_write_input_draft')?.addEventListener('click', handleWriteInputDraft);
+    document.getElementById('arr_btn_undo_input_draft')?.addEventListener('click', handleUndoInputDraft);
     document.getElementById('arr_btn_confirm_write')?.addEventListener('click', handleConfirmWrite);
 }
 
@@ -196,7 +272,7 @@ function injectFloatingPanel() {
     panel.innerHTML = `
         <div class="arr-panel-header">
             <span class="arr-panel-title">Agent RP Runtime</span>
-            <span class="arr-panel-badge" id="arr_panel_badge">I5-safe</span>
+            <span class="arr-panel-badge" id="arr_panel_badge">I6-B1</span>
             <button class="arr-panel-toggle" id="arr_panel_toggle" title="toggle">-</button>
         </div>
         <div class="arr-panel-body" id="arr_panel_body">
@@ -206,10 +282,14 @@ function injectFloatingPanel() {
             </div>
             <div class="arr-panel-actions">
                 <button id="arr_btn_preview_write" class="arr-btn">写回预览</button>
+                <button id="arr_btn_write_input_draft" class="arr-btn">写入输入框</button>
+            </div>
+            <div class="arr-panel-actions">
+                <button id="arr_btn_undo_input_draft" class="arr-btn">撤销输入框</button>
                 <button id="arr_btn_confirm_write" class="arr-btn" disabled>确认写回</button>
             </div>
             <div class="arr-panel-output" id="arr_panel_output">
-                <div class="arr-placeholder">I5 安全层：可预览写回，但确认写回默认禁用。</div>
+                <div class="arr-placeholder">I6-B1：可写入输入框草稿，但不会发送，不会改聊天记录。</div>
             </div>
         </div>
     `;
@@ -221,7 +301,7 @@ function injectFloatingPanel() {
 function bootstrap() {
     try {
         injectFloatingPanel();
-        console.log(`[${EXTENSION_NAME}] Extension loaded (I5 safety gate, no real write-back)`);
+        console.log(`[${EXTENSION_NAME}] Extension loaded (I6-B1 input-box draft only)`);
     } catch (e) {
         console.error(`[${EXTENSION_NAME}] bootstrap failed:`, e);
     }
