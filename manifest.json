@@ -2,9 +2,9 @@
     "display_name": "Agent RP Runtime",
     "id": "agent-rp-runtime",
     "api": 2,
-    "version": "0.1.1",
-    "description": "通用 Agent RP Runtime bridge shell — 多 Agent pipeline、状态管理、规则校验",
-    "author": "Vivian / local project",
+    "version": "0.1.2",
+    "description": "Agent RP Runtime extension",
+    "author": "Vivian",
     "tags": ["agent", "rp", "runtime", "bridge"],
     "js": "index.js",
     "css": "style.css"
