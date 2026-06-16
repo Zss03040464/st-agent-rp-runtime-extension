@@ -1,6 +1,9 @@
 const EXTENSION_NAME = 'Agent RP Runtime';
 let lastReadonlyResult = null;
+let lastDryRunText = '';
+let lastWritePreview = null;
 let panelCollapsed = false;
+const WRITE_CONFIRM_ENABLED = false;
 
 console.log(`[${EXTENSION_NAME}] extension index.js loaded`);
 
@@ -60,6 +63,43 @@ function formatDryRun(bridgeInput) {
     ].join('\n');
 }
 
+function buildWritePreview() {
+    const now = new Date().toLocaleTimeString();
+    const source = lastDryRunText || 'Dry-run result is empty. Run Dry-Run first.';
+    return {
+        createdAt: now,
+        candidate: [
+            '[Agent RP Runtime preview only]',
+            'This text is not inserted into chat.',
+            '',
+            source,
+        ].join('\n'),
+        checks: [
+            'manualTriggerOnly: true',
+            'secondConfirmRequired: true',
+            'autoGenerateBlocked: true',
+            'realInsertBlocked: true',
+            'didWriteBack: false',
+        ],
+    };
+}
+
+function formatWritePreview(preview) {
+    return [
+        'Write-back safety preview',
+        `createdAt: ${preview.createdAt}`,
+        '',
+        'Candidate preview:',
+        preview.candidate,
+        '',
+        'Safety checks:',
+        ...preview.checks.map(x => `  ${x}`),
+        '',
+        'Confirm button status: disabled',
+        'Reason: I5 only defines the safety gate. Real insertion is not enabled.',
+    ].join('\n');
+}
+
 function escapeHtml(value) {
     const div = document.createElement('div');
     div.textContent = String(value ?? '');
@@ -100,10 +140,33 @@ function handleRefreshData() {
 function handleDryRun() {
     console.log(`[${EXTENSION_NAME}] dry-run clicked`);
     try {
-        setPanelOutput(formatDryRun(bridgeInputFromScan(lastReadonlyResult)));
+        lastDryRunText = formatDryRun(bridgeInputFromScan(lastReadonlyResult));
+        setPanelOutput(lastDryRunText);
     } catch (e) {
         setPanelError(`Dry-run failed: ${e.message}`);
     }
+}
+
+function handleWritePreview() {
+    console.log(`[${EXTENSION_NAME}] write preview clicked`);
+    try {
+        lastWritePreview = buildWritePreview();
+        setPanelOutput(formatWritePreview(lastWritePreview));
+        const confirm = document.getElementById('arr_btn_confirm_write');
+        if (confirm) confirm.disabled = !WRITE_CONFIRM_ENABLED;
+    } catch (e) {
+        setPanelError(`Write preview failed: ${e.message}`);
+    }
+}
+
+function handleConfirmWrite() {
+    console.log(`[${EXTENSION_NAME}] confirm write clicked but blocked`);
+    setPanelOutput([
+        'Write-back blocked',
+        'didWriteBack: false',
+        'Reason: confirm write is intentionally disabled in I5 safety gate.',
+        'No chat content was changed.',
+    ].join('\n'));
 }
 
 function mountPanelEvents() {
@@ -120,6 +183,8 @@ function mountPanelEvents() {
 
     document.getElementById('arr_btn_refresh')?.addEventListener('click', handleRefreshData);
     document.getElementById('arr_btn_dryrun')?.addEventListener('click', handleDryRun);
+    document.getElementById('arr_btn_preview_write')?.addEventListener('click', handleWritePreview);
+    document.getElementById('arr_btn_confirm_write')?.addEventListener('click', handleConfirmWrite);
 }
 
 function injectFloatingPanel() {
@@ -131,7 +196,7 @@ function injectFloatingPanel() {
     panel.innerHTML = `
         <div class="arr-panel-header">
             <span class="arr-panel-title">Agent RP Runtime</span>
-            <span class="arr-panel-badge" id="arr_panel_badge">loaded</span>
+            <span class="arr-panel-badge" id="arr_panel_badge">I5-safe</span>
             <button class="arr-panel-toggle" id="arr_panel_toggle" title="toggle">-</button>
         </div>
         <div class="arr-panel-body" id="arr_panel_body">
@@ -139,8 +204,12 @@ function injectFloatingPanel() {
                 <button id="arr_btn_refresh" class="arr-btn">刷新只读数据</button>
                 <button id="arr_btn_dryrun" class="arr-btn">运行 Dry-Run</button>
             </div>
+            <div class="arr-panel-actions">
+                <button id="arr_btn_preview_write" class="arr-btn">写回预览</button>
+                <button id="arr_btn_confirm_write" class="arr-btn" disabled>确认写回</button>
+            </div>
             <div class="arr-panel-output" id="arr_panel_output">
-                <div class="arr-placeholder">点击刷新只读数据查看摘要。</div>
+                <div class="arr-placeholder">I5 安全层：可预览写回，但确认写回默认禁用。</div>
             </div>
         </div>
     `;
@@ -152,7 +221,7 @@ function injectFloatingPanel() {
 function bootstrap() {
     try {
         injectFloatingPanel();
-        console.log(`[${EXTENSION_NAME}] Extension loaded (self-contained browser entrypoint)`);
+        console.log(`[${EXTENSION_NAME}] Extension loaded (I5 safety gate, no real write-back)`);
     } catch (e) {
         console.error(`[${EXTENSION_NAME}] bootstrap failed:`, e);
     }
